@@ -1,6 +1,6 @@
 package es.etg.dam.rest.model
 
-data class User(
-    val id: Int,
+data class ObjectModel(
+    val id: String,
     val name: String
 )
