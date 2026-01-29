@@ -1,29 +1,30 @@
 package es.etg.dam.rest.ui.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import es.etg.dam.rest.R
 import es.etg.dam.rest.database.ObjectEntity
 
-class ObjectAdapter(private val list: List<ObjectEntity>) :
-    RecyclerView.Adapter<ObjectAdapter.ViewHolder>() {
+class ObjectAdapter(
+    context: Context,
+    private val lista: List<ObjectEntity>
+    ) : ArrayAdapter<ObjectEntity>(context, 0, lista) {
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val name: TextView = view.findViewById(R.id.txtName)
-    }
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
+        val view = convertView ?: LayoutInflater.from(context)
             .inflate(R.layout.item_object, parent, false)
-        return ViewHolder(view)
-    }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.name.text = list[position].name
-    }
+        val item = lista[position]
+        val txtNombre = view.findViewById<TextView>(R.id.txtNombre)
 
-    override fun getItemCount(): Int = list.size
+        txtNombre.text = item.name
+
+        return view
+    }
 }

@@ -8,8 +8,12 @@ import androidx.room.Query
 interface ObjectDao {
 
     @Query("SELECT * FROM objects")
-    suspend fun getAll(): List<ObjectEntity>
+    suspend fun getAllObjects(): List<ObjectEntity>
 
     @Insert
     suspend fun insertAll(objects: List<ObjectEntity>)
+
+    @Query("DELETE FROM objects")
+    suspend fun deleteAll()
+
 }
