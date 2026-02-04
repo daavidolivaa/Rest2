@@ -19,6 +19,14 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        const val NOMBRE_BD = "app_db"
+        const val MSG_ORIGEN = "ORIGEN"
+        const val MSG_REST = "BD vacía REST"
+        const val MSG_BD = "Mostrando desde BD"
+        const val MSG_BORRAR = "BD borrada"
+    }
+
     private lateinit var db: AppDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java,
-            "app_db"
+            NOMBRE_BD
         ).build()
 
         findViewById<Button>(R.id.btnActualizar).setOnClickListener {
@@ -47,7 +55,7 @@ class MainActivity : AppCompatActivity() {
 
             if (datosBD.isEmpty()) {
 
-                Log.d("ORIGEN", "BD vacía REST")
+                Log.d(MSG_ORIGEN, MSG_REST)
 
                 val datosApi = RetrofitInstance.api.getObjects()
 
@@ -58,11 +66,9 @@ class MainActivity : AppCompatActivity() {
                     )
                 }
                 db.objectDao().insertAll(entidades)
-
-
             }
 
-            Log.d("ORIGEN", "Mostrando desde BD")
+            Log.d(MSG_ORIGEN, MSG_BD)
             val datosFinales = db.objectDao().getAllObjects()
             mostrarEnListView(datosFinales)
         }
@@ -75,11 +81,10 @@ class MainActivity : AppCompatActivity() {
     private fun borrarBaseDeDatos() {
         lifecycleScope.launch {
             db.objectDao().deleteAll()
-            Log.d("ORIGEN", "BD borrada")
+            Log.d(MSG_ORIGEN, MSG_BORRAR)
             val listaVacia = db.objectDao().getAllObjects()
             mostrarEnListView(listaVacia)
         }
     }
-
 }
 

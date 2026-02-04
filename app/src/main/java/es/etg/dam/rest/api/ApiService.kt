@@ -4,7 +4,9 @@ import es.etg.dam.rest.model.ObjectModel
 import retrofit2.http.GET
 
 interface ApiService {
-
-    @GET("objects")
+    companion object{
+        const val OBJETOS = "objects"
+    }
+    @GET(OBJETOS)
     suspend fun getObjects(): List<ObjectModel>
 }

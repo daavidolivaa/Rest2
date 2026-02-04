@@ -10,10 +10,11 @@ import androidx.recyclerview.widget.RecyclerView
 import es.etg.dam.rest.R
 import es.etg.dam.rest.database.ObjectEntity
 
-class ObjectAdapter(
-    context: Context,
-    private val lista: List<ObjectEntity>
-    ) : ArrayAdapter<ObjectEntity>(context, 0, lista) {
+class ObjectAdapter(context: Context, private val lista: List<ObjectEntity>)
+    : ArrayAdapter<ObjectEntity>(context, CERO, lista) {
+        companion object{
+            const val CERO = 0
+        }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
