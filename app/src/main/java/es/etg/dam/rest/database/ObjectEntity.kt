@@ -6,5 +6,6 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "objects")
 data class ObjectEntity(
     @PrimaryKey val id: String,
-    val name: String
+    val name: String,
+    val data: String
 )

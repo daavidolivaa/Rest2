@@ -60,7 +60,9 @@ class MainActivity : AppCompatActivity() {
             applicationContext,
             AppDatabase::class.java,
             NOMBRE_BD
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     private fun comprobarDatosIniciales() {
@@ -74,7 +76,7 @@ class MainActivity : AppCompatActivity() {
                 val datosApi = RetrofitInstance.api.getObjects()
 
                 val entidades = datosApi.map {
-                    ObjectEntity(it.id, it.name)
+                    ObjectEntity(it.id, it.name, it.data.toString())
                 }
 
                 db.objectDao().insertAll(entidades)
@@ -93,10 +95,12 @@ class MainActivity : AppCompatActivity() {
 
             Log.d(TAG, MSG_REST)
 
+            db.objectDao().deleteAll()
+
             val datosApi = RetrofitInstance.api.getObjects()
 
             val entidades = datosApi.map {
-                ObjectEntity(it.id, it.name)
+                ObjectEntity(it.id, it.name, it.data.toString())
             }
 
             db.objectDao().insertAll(entidades)
