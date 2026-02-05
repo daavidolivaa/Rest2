@@ -14,6 +14,7 @@ import es.etg.dam.rest.R
 import es.etg.dam.rest.api.RetrofitInstance
 import es.etg.dam.rest.database.AppDatabase
 import es.etg.dam.rest.database.ObjectEntity
+import es.etg.dam.rest.databinding.ActivityMainBinding
 import es.etg.dam.rest.ui.adapter.ObjectAdapter
 import kotlinx.coroutines.launch
 
@@ -21,70 +22,101 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val NOMBRE_BD = "app_db"
-        const val MSG_ORIGEN = "ORIGEN"
-        const val MSG_REST = "BD vacía REST"
-        const val MSG_BD = "Mostrando desde BD"
+        const val TAG = "ORIGEN"
+        const val MSG_REST = "Actualizando desde REST"
+        const val MSG_BD_VACIA = "BD vacía -> REST"
+        const val MSG_BD_DATOS = "BD con datos -> cargar BD"
         const val MSG_BORRAR = "BD borrada"
     }
 
+    private lateinit var binding: ActivityMainBinding
     private lateinit var db: AppDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        // Cargar los datos desde el room
+        setRoom()
+
+        // Cargar datos al iniciar app
+        comprobarDatosIniciales()
+
+        // Botón actualizar
+        binding.btnActualizar.setOnClickListener {
+            actualizarDesdeRest()
+        }
+
+        // Boton borrar
+        binding.btnBorrarBD.setOnClickListener {
+            borrarBaseDeDatos()
+        }
+
+    }
+    private fun setRoom(){
         db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java,
             NOMBRE_BD
         ).build()
-
-        findViewById<Button>(R.id.btnActualizar).setOnClickListener {
-            cargarDatos()
-        }
-
-        findViewById<Button>(R.id.btnBorrarBD).setOnClickListener {
-            borrarBaseDeDatos()
-        }
     }
 
-    private fun cargarDatos() {
+    private fun comprobarDatosIniciales() {
         lifecycleScope.launch {
 
             val datosBD = db.objectDao().getAllObjects()
 
             if (datosBD.isEmpty()) {
-
-                Log.d(MSG_ORIGEN, MSG_REST)
+                Log.d(TAG, MSG_BD_VACIA)
 
                 val datosApi = RetrofitInstance.api.getObjects()
 
                 val entidades = datosApi.map {
-                    ObjectEntity(
-                        id = it.id,
-                        name = it.name
-                    )
+                    ObjectEntity(it.id, it.name)
                 }
+
                 db.objectDao().insertAll(entidades)
+
+                mostrarEnListView(entidades)
+
+            } else {
+                Log.d(TAG, MSG_BD_DATOS)
+                mostrarEnListView(datosBD)
+            }
+        }
+    }
+
+    private fun actualizarDesdeRest() {
+        lifecycleScope.launch {
+
+            Log.d(TAG, MSG_REST)
+
+            val datosApi = RetrofitInstance.api.getObjects()
+
+            val entidades = datosApi.map {
+                ObjectEntity(it.id, it.name)
             }
 
-            Log.d(MSG_ORIGEN, MSG_BD)
-            val datosFinales = db.objectDao().getAllObjects()
-            mostrarEnListView(datosFinales)
+            db.objectDao().insertAll(entidades)
+
+            mostrarEnListView(entidades)
+        }
+    }
+
+    private fun borrarBaseDeDatos() {
+        lifecycleScope.launch {
+
+            db.objectDao().deleteAll()
+
+            Log.d(TAG, MSG_BORRAR)
+
+            mostrarEnListView(emptyList())
         }
     }
     private fun mostrarEnListView(lista: List<ObjectEntity>) {
-        val listView = findViewById<ListView>(R.id.listView)
         val adapter = ObjectAdapter(this, lista)
-        listView.adapter = adapter
-    }
-    private fun borrarBaseDeDatos() {
-        lifecycleScope.launch {
-            db.objectDao().deleteAll()
-            Log.d(MSG_ORIGEN, MSG_BORRAR)
-            val listaVacia = db.objectDao().getAllObjects()
-            mostrarEnListView(listaVacia)
-        }
+        binding.listView.adapter = adapter
     }
 }
-

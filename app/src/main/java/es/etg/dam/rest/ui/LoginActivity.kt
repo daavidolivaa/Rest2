@@ -9,35 +9,35 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import es.etg.dam.rest.ui.MainActivity
 import es.etg.dam.rest.R
+import es.etg.dam.rest.databinding.ActivityLoginBinding
 
 
 class LoginActivity : AppCompatActivity() {
 
-        companion object {
-            const val NOMBRE = "nombre"
-            const val PREFS = "login_prefs"
+    companion object {
+        const val NOMBRE = "nombre"
+        const val PREFS = "login_prefs"
+    }
+
+    private lateinit var binding: ActivityLoginBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        val nombreGuardado = leer()
+
+        if (!nombreGuardado.isNullOrEmpty()) {
+            binding.etUsuario.setText(nombreGuardado)
         }
 
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            setContentView(R.layout.activity_login)
-
-
-            val edtUsuario = findViewById<EditText>(R.id.etUsuario)
-            val edtPass = findViewById<EditText>(R.id.etPassword)
-            val btnLogin = findViewById<Button>(R.id.btnLogin)
-
-            val nombreGuardado = leer()
-
-            if (nombreGuardado != null && nombreGuardado.isNotEmpty()) {
-                edtUsuario.setText(nombreGuardado)
-            }
-
-            btnLogin.setOnClickListener {
-                guardar(edtUsuario.text.toString())
-                navegar()
-            }
+        binding.btnLogin.setOnClickListener {
+            guardar(binding.etUsuario.text.toString())
+            navegar()
         }
+    }
 
     private fun guardar(nombre: String) {
         val sharedPref = getSharedPreferences(PREFS, MODE_PRIVATE)
